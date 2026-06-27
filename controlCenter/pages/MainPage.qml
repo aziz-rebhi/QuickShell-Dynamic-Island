@@ -1,0 +1,300 @@
+import QtQuick
+import QtQuick.Layouts
+import "../components"
+import "../../Widgets/notifications"
+
+ColumnLayout {
+  spacing: 12
+
+  property string page: ""
+  property bool wifiEnabled: false
+  property string wifiName: ""
+  property var volumeIcon
+  property real audioVolume: 0
+  property bool audioMuted: false
+  property var audioSink
+  property var btAdapter
+  property bool nlEnabled: false
+  property bool doNotDisturb: false
+  property var brightnessIcon
+  property real brightness: 0
+  property var activePlayer
+  property string playerArt: ""
+  property var storedNotifications: []
+
+  signal navigateTo(string page)
+  signal toggleWifi()
+  signal scanWifi()
+  signal loadCurrentWifiPassword()
+  signal toggleMute()
+  signal toggleBluetooth()
+  signal toggleNightLight()
+  signal toggleDnd()
+  signal setVolume(real val)
+  signal setBrightness(real val)
+  signal dismissNotif(var notifRef)
+  signal clearNotifs()
+
+  RowLayout {
+    Layout.fillWidth: true
+    spacing: 12
+
+    ToggleTile {
+      iconText: wifiEnabled ? "" : "󰖪"
+      label: "Wi-Fi"
+      sublabel: wifiEnabled ? wifiName : "Off"
+      active: wifiEnabled
+      expandable: true
+      onTapped: toggleWifi()
+      onExpandTapped: {
+        navigateTo("wifi");
+        scanWifi();
+        loadCurrentWifiPassword();
+      }
+    }
+
+    ToggleTile {
+      iconText: volumeIcon(audioVolume, audioMuted)
+      label: "Audio"
+      sublabel: audioMuted ? "Muted" : (audioSink?.description || audioSink?.name || "Speaker")
+      active: !audioMuted
+      expandable: true
+      onTapped: toggleMute()
+      onExpandTapped: navigateTo("audio")
+    }
+  }
+
+  RowLayout {
+    Layout.fillWidth: true
+    spacing: 12
+
+    ToggleTile {
+      iconText: "󰂯"
+      label: "Bluetooth"
+      sublabel: btAdapter?.enabled ? "On" : "Off"
+      active: !!btAdapter?.enabled
+      expandable: true
+      onTapped: toggleBluetooth()
+      onExpandTapped: navigateTo("bluetooth")
+    }
+
+    ToggleTile {
+      iconText: "󰂚"
+      label: "Night Light"
+      sublabel: nlEnabled ? "On" : "Off"
+      active: nlEnabled
+      expandable: true
+      onTapped: toggleNightLight()
+      onExpandTapped: navigateTo("nightlight")
+    }
+
+    ToggleTile {
+      iconText: ""
+      label: "Peace"
+      sublabel: doNotDisturb ? "On" : "Off"
+      active: doNotDisturb
+      onTapped: toggleDnd()
+    }
+  }
+
+  IconSlider {
+    iconText: volumeIcon(audioVolume, audioMuted)
+    value: audioMuted ? 0 : audioVolume
+    onMoved: val => setVolume(val)
+  }
+
+  IconSlider {
+    iconText: brightnessIcon(brightness)
+    value: brightness
+    onMoved: val => setBrightness(val)
+  }
+
+  // ---- Media Player Card ----
+  Rectangle {
+    Layout.fillWidth: true
+    Layout.preferredHeight: 160
+    radius: 18
+    clip: true
+    visible: activePlayer !== null
+    color: "#1a1f1d"
+
+    Image {
+      anchors.fill: parent
+      source: playerArt || ""
+      fillMode: Image.PreserveAspectCrop
+      asynchronous: true
+      visible: playerArt.length > 0 && status === Image.Ready
+      opacity: 0.35
+    }
+    Rectangle {
+      anchors.fill: parent
+      color: "#000"
+      opacity: 0.3
+    }
+
+    RowLayout {
+      anchors.fill: parent
+      anchors.margins: 14
+      spacing: 14
+
+      Rectangle {
+        width: 64
+        height: 64
+        radius: 14
+        color: "#14221d"
+        clip: true
+
+        Image {
+          id: artThumb
+          anchors.fill: parent
+          source: playerArt || ""
+          fillMode: Image.PreserveAspectCrop
+          asynchronous: true
+
+          Rectangle {
+            anchors.fill: parent
+            color: "#14221d"
+            visible: parent.status !== Image.Ready
+
+            Text {
+              anchors.centerIn: parent
+              text: "󰎆"
+              color: "#3ba889"
+              font { family: "JetBrainsMono Nerd Font"; pixelSize: 24 }
+            }
+          }
+        }
+
+
+      }
+
+      ColumnLayout {
+        Layout.fillWidth: true
+        Layout.fillHeight: true
+        spacing: 6
+
+        Text {
+          text: activePlayer?.identity || "Media Player"
+          color: "#eae6dc"
+          opacity: 0.6
+          elide: Text.ElideRight
+          Layout.fillWidth: true
+          font { family: "Inter"; pixelSize: 10 }
+        }
+
+        Text {
+          text: activePlayer?.trackTitle || "Nothing playing"
+          color: "#fff"
+          font { family: "Inter"; pixelSize: 15; weight: 700 }
+          elide: Text.ElideRight
+          Layout.fillWidth: true
+        }
+
+        Text {
+          text: activePlayer?.trackArtist || ""
+          color: "#eae6dc"
+          opacity: 0.7
+          elide: Text.ElideRight
+          Layout.fillWidth: true
+          font { family: "Inter"; pixelSize: 12 }
+        }
+
+        RowLayout {
+          Layout.fillWidth: true
+          spacing: 8
+          Layout.topMargin: 2
+
+          Text {
+            text: "󰒮"
+            color: "#889994"
+            font { family: "JetBrainsMono Nerd Font"; pixelSize: 12 }
+            MouseArea {
+              anchors.fill: parent
+              anchors.margins: -6
+              cursorShape: Qt.PointingHandCursor
+              onClicked: activePlayer?.previous()
+            }
+          }
+
+          Rectangle {
+            id: playBtn
+            width: 30
+            height: 30
+            radius: 15
+            color: "#eae6dc"
+
+            Text {
+              anchors.centerIn: parent
+              text: activePlayer?.isPlaying ? "" : ""
+              color: "#1a1f1d"
+              font { family: "JetBrainsMono Nerd Font"; pixelSize: 12 }
+            }
+
+            MouseArea {
+              anchors.fill: parent
+              cursorShape: Qt.PointingHandCursor
+              hoverEnabled: true
+              onEntered: playBtn.color = "#fff"
+              onExited: playBtn.color = "#eae6dc"
+              onClicked: activePlayer?.togglePlaying()
+            }
+          }
+
+          Text {
+            text: "󰒭"
+            color: "#889994"
+            font { family: "JetBrainsMono Nerd Font"; pixelSize: 12 }
+            MouseArea {
+              anchors.fill: parent
+              anchors.margins: -6
+              cursorShape: Qt.PointingHandCursor
+              onClicked: activePlayer?.next()
+            }
+          }
+
+          Rectangle {
+            Layout.fillWidth: true
+            height: 3
+            radius: 1.5
+            color: "#ffffff"
+            opacity: 0.15
+            Layout.alignment: Qt.AlignVCenter
+
+            Rectangle {
+              height: parent.height
+              radius: 1.5
+              color: "#eae6dc"
+              width: parent.width * (activePlayer && activePlayer.length > 0
+                ? activePlayer.position / activePlayer.length
+                : 0)
+            }
+          }
+        }
+      }
+    }
+  }
+
+  NotificationHistory {
+    Layout.fillWidth: true
+    Layout.fillHeight: (storedNotifications?.length ?? 0) > 0
+    Layout.preferredHeight: (storedNotifications?.length ?? 0) > 0 ? 200 : 0
+    Layout.minimumHeight: (storedNotifications?.length ?? 0) > 0 ? 120 : 0
+    Layout.maximumHeight: (storedNotifications?.length ?? 0) > 0 ? 400 : 0
+    storedNotifications: storedNotifications
+    onDismissNotif: (notifRef) => dismissNotif(notifRef)
+    onClearAll: clearNotifs()
+  }
+
+  Text {
+    Layout.fillWidth: true
+    Layout.topMargin: 8
+    visible: storedNotifications.length === 0
+    text: "No notifications"
+    color: "#eae6dc"
+    opacity: 0.3
+    horizontalAlignment: Text.AlignHCenter
+    font { family: "Inter"; pixelSize: 12 }
+  }
+
+  Item { Layout.fillHeight: true }
+}

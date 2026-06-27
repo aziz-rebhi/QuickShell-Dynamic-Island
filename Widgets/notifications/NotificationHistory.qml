@@ -13,7 +13,7 @@ Rectangle {
 
   radius: 16
   color: "#1a2421"
-  visible: storedNotifications.length > 0
+  visible: (storedNotifications?.length ?? 0) > 0
   clip: true
 
   ColumnLayout {
@@ -37,7 +37,7 @@ Rectangle {
         text: "Clear all"
         color: "#3ba889"
         font { family: "Inter"; pixelSize: 11; weight: 600 }
-        visible: historyRoot.storedNotifications.length > 1
+        visible: (historyRoot.storedNotifications?.length ?? 0) > 1
 
         MouseArea {
           anchors.fill: parent
