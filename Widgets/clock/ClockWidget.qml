@@ -626,14 +626,13 @@ Rectangle {
           }
         }
 
-        MouseArea {
-          anchors.fill: parent
-          hoverEnabled: true
-          propagateComposedEvents: true
-          onEntered: clockWidget.wallpaperMenuHovered = true
-          onExited: clockWidget.wallpaperMenuHovered = false
-          onClicked: mouse.accepted = false
-        }
+          MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+            propagateComposedEvents: true
+            onEntered: clockWidget.wallpaperMenuHovered = true
+            onExited: clockWidget.wallpaperMenuHovered = false
+          }
       }
     }
   }
