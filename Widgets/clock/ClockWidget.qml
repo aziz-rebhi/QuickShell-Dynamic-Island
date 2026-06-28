@@ -14,12 +14,6 @@ import "../../core"
 Rectangle {
   id: clockWidget
 
-  property bool isPlaying: media.playing
-  property var barHeights: media.bars
-  property string trackTitle: media.title
-  property string trackArtist: media.artist
-  property string trackArt: media.art
-
   property bool isPinned: false
   property bool isExpanded: mouseArea.containsMouse || statusCapsule.isHovered || isPinned
   signal toggleControlCenter()
@@ -304,7 +298,7 @@ Rectangle {
   RowLayout {
     id: collapsedRow
     anchors.centerIn: parent
-    spacing: clockWidget.isPlaying ? 6 : 0
+    spacing: media.playing ? 8 : 0
 
     opacity: clockWidget.isExpanded || clockWidget.mode !== "default" ? 0.0 : 1.0
     visible: opacity > 0.0
@@ -313,7 +307,7 @@ Rectangle {
     Item {
       id: visualizerContainer
       Layout.alignment: Qt.AlignVCenter
-      property real targetWidth: clockWidget.isPlaying ? 14 : 0
+      property real targetWidth: media.playing ? 14 : 0
       Layout.preferredWidth: targetWidth
       Layout.preferredHeight: 12
       clip: true
@@ -326,10 +320,10 @@ Rectangle {
         spacing: 2
         height: 12
 
-        Rectangle { width: 2; height: Math.min(12, clockWidget.barHeights[0]); radius: 1; color: Theme.primary; anchors.bottom: parent.bottom }
-        Rectangle { width: 2; height: Math.min(12, clockWidget.barHeights[1]); radius: 1; color: Theme.primary; anchors.bottom: parent.bottom }
-        Rectangle { width: 2; height: Math.min(12, clockWidget.barHeights[2]); radius: 1; color: Theme.primary; anchors.bottom: parent.bottom }
-        Rectangle { width: 2; height: Math.min(12, clockWidget.barHeights[3]); radius: 1; color: Theme.primary; anchors.bottom: parent.bottom }
+        Rectangle { width: 2; height: Math.min(12, media.bars[0]); radius: 1; color: Theme.primary; anchors.bottom: parent.bottom }
+        Rectangle { width: 2; height: Math.min(12, media.bars[1]); radius: 1; color: Theme.primary; anchors.bottom: parent.bottom }
+        Rectangle { width: 2; height: Math.min(12, media.bars[2]); radius: 1; color: Theme.primary; anchors.bottom: parent.bottom }
+        Rectangle { width: 2; height: Math.min(12, media.bars[3]); radius: 1; color: Theme.primary; anchors.bottom: parent.bottom }
       }
     }
 
@@ -344,7 +338,7 @@ Rectangle {
   RowLayout {
     id: indicatorRow
     anchors.centerIn: parent
-    spacing: 6
+    spacing: 8
 
     opacity: !clockWidget.isExpanded && clockWidget.mode !== "default" ? 1.0 : 0.0
     visible: opacity > 0.0
@@ -477,29 +471,27 @@ Rectangle {
     MediaSection {
       anchors.left: parent.left
       anchors.verticalCenter: parent.verticalCenter
-      trackTitle: clockWidget.trackTitle
-      trackArtist: clockWidget.trackArtist ? clockWidget.trackArtist : "Unknown Artist"
-      trackArt: clockWidget.trackArt
-      isPlaying: clockWidget.isPlaying
-      barHeights: clockWidget.barHeights
+      trackTitle: media.title
+      trackArtist: media.artist
+      trackArt: media.art
+      mediaState: media.mediaState
+      barHeights: media.bars
     }
 
     Item {
       id: centerSection
       anchors.centerIn: parent
-      width: clockView.implicitWidth
-      height: clockView.implicitHeight
 
       ColumnLayout {
         id: clockView
         anchors.centerIn: parent
-        spacing: 1
+        spacing: 4
 
         Text {
           text: Qt.formatDateTime(clock.date, "HH:mm")
           color: Theme.text
           Layout.alignment: Qt.AlignHCenter
-          font { family: "Inter"; pixelSize: 18; weight: 500 }
+          font { family: "Inter"; pixelSize: 20; weight: 700 }
         }
 
         Text {
@@ -507,7 +499,7 @@ Rectangle {
           color: Theme.text
           opacity: 0.5
           Layout.alignment: Qt.AlignHCenter
-          font { family: "Inter"; pixelSize: 11; weight: 400 }
+          font { family: "Inter"; pixelSize: 11; weight: 500 }
         }
       }
     }
@@ -538,7 +530,7 @@ Rectangle {
     ColumnLayout {
       anchors.fill: parent
       anchors.margins: 16
-      spacing: 10
+      spacing: 8
 
       // Header
       RowLayout {

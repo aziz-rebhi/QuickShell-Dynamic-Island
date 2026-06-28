@@ -16,6 +16,8 @@ Rectangle {
     property int wifiSignal: status.wifiSignal
     property int batteryPercent: status.battery
     property bool isCharging: status.charging
+    property string powerState: status.powerState
+    property string networkState: status.networkState
     property bool isHovered: capsuleMouseArea.containsMouse
     signal clicked()
 
@@ -37,49 +39,33 @@ Rectangle {
         spacing: 10
 
         Text {
-            text: statusCapsule.wifiName === "Disconnected" ? "󰤭"
+            text: statusCapsule.networkState === "Disconnected" ? "󰤭"
                 : statusCapsule.wifiSignal > 75 ? "󰤨"
                 : statusCapsule.wifiSignal > 50 ? "󰤥"
                 : statusCapsule.wifiSignal > 25 ? "󰤢"
                 : "󰤟"
-            color: statusCapsule.wifiName === "Disconnected" ? Theme.subtext : Theme.primary
+            color: statusCapsule.networkState === "Disconnected" ? Theme.subtext : Theme.primary
             font { family: "JetBrainsMono Nerd Font"; pixelSize: 13 }
         }
 
-        Item {
-            width: 38
-            height: 14
-
-            Rectangle {
-                anchors.fill: parent
-                radius: 3
-                color: Theme.border
-
-                Rectangle {
-                    anchors.left: parent.left
-                    anchors.top: parent.top
-                    anchors.bottom: parent.bottom
-                    width: parent.width * Math.min(statusCapsule.batteryPercent, 100) / 100
-                    radius: 3
-                    color: statusCapsule.batteryPercent > 20 ? Theme.primary : Theme.error
-                }
-
-                Text {
-                    anchors.centerIn: parent
-                    text: statusCapsule.batteryPercent + "%"
-                    color: Theme.text
-                    font { family: "Inter"; pixelSize: 9; weight: 700 }
-                }
+        Text {
+            text: {
+                if (statusCapsule.powerState === "Full") return "󰂅";
+                if (statusCapsule.isCharging) return "󰂄";
+                var p = statusCapsule.batteryPercent;
+                if (p > 80) return "󰁹";
+                if (p > 50) return "󰂀";
+                if (p > 20) return "󰁽";
+                return "󰁺";
             }
+            color: statusCapsule.batteryPercent > 20 ? Theme.primary : Theme.error
+            font { family: "JetBrainsMono Nerd Font"; pixelSize: 13 }
+        }
 
-            Rectangle {
-                anchors.left: parent.right
-                anchors.verticalCenter: parent.verticalCenter
-                width: 3
-                height: 6
-                radius: 1
-                color: statusCapsule.isCharging ? Theme.primary : Theme.border
-            }
+        Text {
+            text: statusCapsule.powerState === "Full" || statusCapsule.isCharging ? "AC" : statusCapsule.batteryPercent + "%"
+            color: Theme.text
+            font { family: "Inter"; pixelSize: 11; weight: 700 }
         }
     }
 }

@@ -4,12 +4,12 @@ import "../../core"
 
 RowLayout {
     id: mediaSection
-    spacing: 10
+    spacing: 8
 
     property string trackTitle: "No Media"
     property string trackArtist: "Unknown Artist"
     property string trackArt: ""
-    property bool isPlaying: false
+    property string mediaState: "Idle"
     property var barHeights: [2, 2, 2, 2]
 
     Rectangle {
@@ -52,7 +52,7 @@ RowLayout {
             Row {
                 spacing: 2
                 height: 10
-                visible: mediaSection.isPlaying
+                visible: mediaSection.mediaState === "Playing"
                 Layout.alignment: Qt.AlignVCenter
 
                 Rectangle { width: 2; height: Math.min(10, mediaSection.barHeights[0]); radius: 0.5; color: Theme.primary; anchors.bottom: parent.bottom }
@@ -63,20 +63,21 @@ RowLayout {
 
             Text {
                 text: mediaSection.trackTitle
-                color: Theme.text
+                color: mediaSection.mediaState === "Idle" ? Theme.subtext : Theme.text
+                opacity: mediaSection.mediaState === "Idle" ? 0.6 : 1.0
                 elide: Text.ElideRight
                 Layout.maximumWidth: 120
-                font { family: "Inter"; pixelSize: 13; weight: 600 }
+                font { family: "Inter"; pixelSize: 12; weight: 500 }
             }
         }
 
         Text {
-            text: mediaSection.trackArtist
+            text: mediaSection.mediaState === "Idle" ? "" : mediaSection.trackArtist
             color: Theme.text
-            opacity: 0.6
+            opacity: 0.5
             elide: Text.ElideRight
             Layout.maximumWidth: 120
-            font { family: "Inter"; pixelSize: 11 }
+            font { family: "Inter"; pixelSize: 10 }
         }
     }
 }

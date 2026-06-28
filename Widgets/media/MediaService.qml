@@ -5,6 +5,12 @@ import QtQuick
 QtObject {
   property bool playing: false
 
+  readonly property string mediaState: {
+    if (!playing) return "Idle";
+    if (title === "No Media") return "Loading";
+    return "Playing";
+  }
+
   property string title: "No Media"
   property string artist: "Unknown Artist"
   property string art: ""
@@ -23,13 +29,22 @@ QtObject {
     stdout: SplitParser {
       onRead: (data) => {
         playing = data.trim() === "Playing"
-        if (metaTimer) metaTimer.restart();
+        metaTimer.restart();
       }
     }
   }
 
-  property var metaTimer: null
-  property var pollTimer: null
+  property Timer pollTimer: Timer {
+    interval: 5000
+    running: true
+    repeat: true
+    onTriggered: fetchMetadata()
+  }
+
+  property Timer metaTimer: Timer {
+    interval: 2000
+    onTriggered: fetchMetadata()
+  }
 
   function youtubeThumb(url) {
     if (!url) return "";
@@ -75,11 +90,6 @@ QtObject {
           art = newArt;
       }
     }
-  }
-
-  Component.onCompleted: {
-    metaTimer = Qt.createQmlObject('import QtQuick; Timer { interval: 2000; onTriggered: fetchMetadata() }', this, "metaTimer");
-    pollTimer = Qt.createQmlObject('import QtQuick; Timer { interval: 5000; running: true; repeat: true; onTriggered: fetchMetadata() }', this, "pollTimer");
   }
 
   property Process cavaProc: Process {
