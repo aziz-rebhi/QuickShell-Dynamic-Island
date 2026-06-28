@@ -1,0 +1,18 @@
+{
+  "background": "#151218",
+  "surface": "#151218",
+  "surfaceBright": "#3b383e",
+  "surfaceDim": "#151218",
+  "surfaceContainer": "#211e24",
+  "surfaceVariant": "#49454e",
+  "primary": "#d5bbfc",
+  "primaryFg": "#3a255b",
+  "secondary": "#cec2db",
+  "tertiary": "#f1b7c3",
+  "backgroundFg": "#e7e0e8",
+  "surfaceFg": "#e7e0e8",
+  "surfaceVariantFg": "#cbc4cf",
+  "outline": "#958e99",
+  "outlineVariant": "#49454e",
+  "error": "#ffb4ab"
+}

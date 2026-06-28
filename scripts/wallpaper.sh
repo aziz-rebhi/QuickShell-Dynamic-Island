@@ -20,4 +20,7 @@ if command -v matugen &>/dev/null; then
   if [ -f "$HOME/.cache/matugen/Theme.qml" ]; then
     cp "$HOME/.cache/matugen/Theme.qml" "$HOME/.config/quickshell/core/Theme.qml"
   fi
+  if [ -f "$HOME/.cache/matugen/colors.json" ]; then
+    cp "$HOME/.cache/matugen/colors.json" "$HOME/.config/quickshell/core/colors.json"
+  fi
 fi
