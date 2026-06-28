@@ -36,6 +36,10 @@ QtObject {
     }
   }
 
+  function rescan() {
+    scanProc.running = true
+  }
+
   function applyWallpaper(path) {
     console.log("applying wallpaper:", path)
     _applyProc.command = [Quickshell.shellPath("scripts/wallpaper.sh"), path]

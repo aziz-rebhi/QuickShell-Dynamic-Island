@@ -87,7 +87,7 @@ Rectangle {
 
   Timer {
     id: brightnessPoll
-    interval: 100; running: true; repeat: true
+    interval: 2000; running: true; repeat: true
     onTriggered: {
       if (!clockWidget.brightnessProc.running)
         clockWidget.brightnessProc.running = true;
@@ -121,7 +121,7 @@ Rectangle {
   }
 
   Timer {
-    interval: 200; running: true; repeat: true
+    interval: 2000; running: true; repeat: true
     onTriggered: {
       if (!clockWidget.capsLockProc.running)
         clockWidget.capsLockProc.running = true;
@@ -142,7 +142,7 @@ Rectangle {
   }
 
   Timer {
-    interval: 200; running: true; repeat: true
+    interval: 2000; running: true; repeat: true
     onTriggered: {
       if (!clockWidget.numLockProc.running)
         clockWidget.numLockProc.running = true;
@@ -174,6 +174,7 @@ Rectangle {
 
   function powerAction(cmd) {
     var p = Qt.createQmlObject('import QtQuick; import Quickshell.Io; Process { command: ' + JSON.stringify(cmd) + ' }', clockWidget);
+    p.exited.connect(function() { p.destroy() });
     p.running = true;
     clockWidget.showPowerMenu = false;
   }
@@ -251,6 +252,7 @@ Rectangle {
       if (showPowerMenu) showPowerMenu = false;
       if (showAppLauncher) showAppLauncher = false;
       if (wallpaperMenuTimer) wallpaperMenuTimer.restart();
+      if (wallpaperSvc) wallpaperSvc.rescan();
     }
   }
 

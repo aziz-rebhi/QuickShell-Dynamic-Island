@@ -63,37 +63,25 @@ ShellRoot {
   }
 
   Timer {
-    interval: 300; repeat: true; running: true
-    onTriggered: {
-      powerMenuChecker.running = true;
-      appLauncherChecker.running = true;
-      wallpaperChecker.running = true;
-    }
+    interval: 2000; repeat: true; running: true
+    onTriggered: ipcChecker.running = true
   }
 
   Process {
-    id: powerMenuChecker
-    command: ["sh", "-c", "test -f /tmp/qs-power-menu && rm /tmp/qs-power-menu && echo 1"]
+    id: ipcChecker
+    command: ["sh", "-c", "out=''; test -f /tmp/qs-power-menu && rm /tmp/qs-power-menu && out=\"${out}p\"; test -f /tmp/qs-app-launcher && rm /tmp/qs-app-launcher && out=\"${out}a\"; test -f /tmp/qs-wallpaper && rm /tmp/qs-wallpaper && out=\"${out}w\"; echo \"$out\""]
     stdout: StdioCollector {
       onStreamFinished: {
-        if (this.text.trim() === "1" && !clockItem.showAppLauncher)
-          clockItem.showPowerMenu = true;
+        var flags = this.text.trim()
+        if (flags.indexOf("p") >= 0 && !clockItem.showAppLauncher)
+          clockItem.showPowerMenu = true
+        if (flags.indexOf("a") >= 0 && !clockItem.showPowerMenu)
+          clockItem.showAppLauncher = true
+        if (flags.indexOf("w") >= 0)
+          clockItem.showWallpaperMenu = !clockItem.showWallpaperMenu
       }
     }
   }
-
-  Process {
-    id: appLauncherChecker
-    command: ["sh", "-c", "test -f /tmp/qs-app-launcher && rm /tmp/qs-app-launcher && echo 1"]
-    stdout: StdioCollector {
-      onStreamFinished: {
-        if (this.text.trim() === "1" && !clockItem.showPowerMenu)
-          clockItem.showAppLauncher = true;
-      }
-    }
-  }
-
-  // App launcher overlay window for keyboard input
   PanelWindow {
     anchors { top: true; left: true; right: true }
     implicitHeight: clockItem.showAppLauncher ? 270 : 0
@@ -121,23 +109,6 @@ ShellRoot {
         appService: appLauncherSvc
         onCloseRequested: clockItem.showAppLauncher = false
         onHoveredChanged: clockItem.appLauncherHovered = hovered
-      }
-    }
-  }
-
-  // Wallpaper IPC poller — same pattern as power menu / app launcher
-  Process {
-    id: wallpaperChecker
-    command: ["sh", "-c", "test -f /tmp/qs-wallpaper && rm /tmp/qs-wallpaper && echo 1"]
-    stdout: StdioCollector {
-      onStreamFinished: {
-        if (this.text.trim() === "1") {
-          if (clockItem.showWallpaperMenu) {
-            clockItem.showWallpaperMenu = false;
-          } else {
-            clockItem.showWallpaperMenu = true;
-          }
-        }
       }
     }
   }

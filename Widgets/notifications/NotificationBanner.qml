@@ -60,7 +60,7 @@ Rectangle {
 
       Text {
         text: root.notificationData?.body ?? ""
-        visible: text !== ""
+        visible: text !== "" && !root.expanded
         color: Theme.subtext
         font { family: "Inter"; pixelSize: 10; weight: 400 }
         elide: Text.ElideRight
@@ -70,7 +70,7 @@ Rectangle {
 
       Text {
         text: root.notificationData?.body ?? ""
-        visible: text !== ""
+        visible: text !== "" && root.expanded
         color: Theme.muted
         font { family: "Inter"; pixelSize: 11; weight: 400 }
         elide: Text.ElideRight

@@ -86,6 +86,17 @@ Item {
       latestNotificationData = null;
     if (latestNotification && latestNotification.id === itemId)
       latestNotification = null;
+
+    // Release the lock so the notification can be freed by the server
+    var arr = storedNotifications;
+    for (var i = 0; i < arr.length; i++) {
+      if (arr[i].id === itemId && arr[i]._lock) {
+        arr[i]._lock.locked = false;
+        arr[i]._lock.destroy();
+        arr[i]._lock = null;
+        break;
+      }
+    }
   }
 
   function clearAll() {

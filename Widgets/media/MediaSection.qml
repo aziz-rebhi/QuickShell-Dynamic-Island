@@ -24,6 +24,8 @@ RowLayout {
             source: mediaSection.trackArt || ""
             fillMode: Image.PreserveAspectCrop
             asynchronous: true
+            sourceSize.width: 88
+            sourceSize.height: 88
 
             Rectangle {
                 anchors.fill: parent

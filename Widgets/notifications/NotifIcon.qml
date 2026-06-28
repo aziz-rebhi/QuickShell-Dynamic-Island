@@ -19,6 +19,8 @@ Item {
     anchors.fill: parent
     source: root._resolvedSource
     asynchronous: true
+    sourceSize.width: root.iconSize * 2
+    sourceSize.height: root.iconSize * 2
     visible: status === Image.Ready
     fillMode: Image.PreserveAspectFit
   }

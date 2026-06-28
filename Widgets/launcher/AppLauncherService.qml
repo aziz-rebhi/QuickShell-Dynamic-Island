@@ -9,6 +9,7 @@ QtObject {
 
   function launchApp(desktopId) {
     var p = Qt.createQmlObject('import QtQuick; import Quickshell.Io; Process { command: ["gtk-launch", ' + JSON.stringify(desktopId) + '] }', appService);
+    p.exited.connect(function() { p.destroy() });
     p.running = true;
   }
 

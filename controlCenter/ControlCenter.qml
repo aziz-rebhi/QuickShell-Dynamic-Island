@@ -3,7 +3,6 @@ import Quickshell.Wayland
 import Quickshell.Io
 import Quickshell.Widgets
 import Quickshell.Services.Pipewire
-import Quickshell.Services.Mpris
 import Quickshell.Services.Notifications
 import "./components"
 import "./pages"
@@ -46,12 +45,12 @@ PanelWindow {
     color: "transparent"
 
     // --- Audio (Pipewire) ---
-    readonly property PwNode audioSink: Pipewire.defaultAudioSink
-    readonly property PwNode audioSource: Pipewire.defaultAudioSource
-    readonly property bool audioMuted: !!audioSink?.audio?.muted
-    readonly property bool audioSourceMuted: !!audioSource?.audio?.muted
-    readonly property real audioVolume: Math.min(1, Math.max(0, audioSink?.audio?.volume ?? 0))
-    readonly property real audioSourceVolume: Math.min(1, Math.max(0, audioSource?.audio?.volume ?? 0))
+    property PwNode audioSink: Pipewire.defaultAudioSink
+    property PwNode audioSource: Pipewire.defaultAudioSource
+    property bool audioMuted: !!audioSink?.audio?.muted
+    property bool audioSourceMuted: !!audioSource?.audio?.muted
+    property real audioVolume: Math.min(1, Math.max(0, audioSink?.audio?.volume ?? 0))
+    property real audioSourceVolume: Math.min(1, Math.max(0, audioSource?.audio?.volume ?? 0))
 
     property var audioSinks: []
     property var audioSources: []
@@ -79,16 +78,27 @@ PanelWindow {
         audioSources = audioSources.filter(function(n) { return n !== node; });
     }
 
+    // Bind the default audio sink/source so their volume/muted setters work
+    PwObjectTracker {
+        objects: [controlCenter.audioSink, controlCenter.audioSource]
+    }
+
     Timer {
         interval: 500; repeat: true; running: true
         onTriggered: {
             try {
-                var nodes = controlCenter.audioTrackedNodes;
+                var allNodes = Pipewire.nodes.values;
+                var nodes = [];
+                for (var i = 0; i < allNodes.length; i++) {
+                    var n = allNodes[i];
+                    if (n && (n.type === PwNodeType.AudioSink || n.type === PwNodeType.AudioSource)) {
+                        nodes.push(n);
+                    }
+                }
                 audioSinks = audioSinks.filter(function(n) { return nodes.indexOf(n) !== -1; });
                 audioSources = audioSources.filter(function(n) { return nodes.indexOf(n) !== -1; });
                 for (var i = 0; i < nodes.length; i++) {
-                    var n = nodes[i];
-                    if (n && n.ready) controlCenter._addAudioNode(n);
+                    if (nodes[i] && nodes[i].ready) controlCenter._addAudioNode(nodes[i]);
                 }
             } catch (e) {}
         }
@@ -113,22 +123,6 @@ PanelWindow {
 
     function setDefaultSource(node) {
         if (node) Pipewire.preferredDefaultAudioSource = node;
-    }
-
-    readonly property var audioTrackedNodes: {
-        var nodes = Pipewire.nodes.values;
-        var out = [];
-        for (var i = 0; i < nodes.length; i++) {
-            var n = nodes[i];
-            if (n && (n.type === PwNodeType.AudioSink || n.type === PwNodeType.AudioSource)) {
-                out.push(n);
-            }
-        }
-        return out;
-    }
-
-    PwObjectTracker {
-        objects: controlCenter.audioTrackedNodes
     }
 
     function setVolume(vol) {
@@ -306,20 +300,23 @@ PanelWindow {
         command: ["sh", "-c", "true"]
     }
 
+    Connections {
+        target: wifiQrProc
+        function onExited() {
+            var p = Quickshell.cachePath("wifi-qr.png");
+            controlCenter.wifiQrPath = "file://" + p;
+        }
+    }
+
     function generateWifiQr() {
         if (!wifiCurrentPassword) { wifiQrPath = ""; return; }
         const security = wifiSecurity && wifiSecurity !== "--" ? "WPA" : "nopass";
         const payload = `WIFI:T:${security};S:${wifiName};P:${wifiCurrentPassword};;`;
         const escaped = payload.replace(/'/g, "'\\''");
-        const path = Quickshell.cachePath("wifi-qr.png");
-        wifiQrProc.command = ["sh", "-c", `qrencode -t PNG -s 6 -o '${path}' '${escaped}'`];
+        wifiQrProc.command = ["sh", "-c", `qrencode -t PNG -s 6 -o '${Quickshell.cachePath("wifi-qr.png")}' '${escaped}'`];
         wifiQrProc.running = true;
         wifiQrPath = "";
-        wifiQrReadyDelay.start();
-        wifiQrProc.exited.connect(() => { controlCenter.wifiQrPath = "file://" + path; });
     }
-
-    Timer { id: wifiQrReadyDelay; interval: 50 }
 
     // --- Bluetooth ---
     readonly property BluetoothAdapter btAdapter: Bluetooth.defaultAdapter
@@ -516,43 +513,92 @@ PanelWindow {
         return "󰃠";
     }
 
-    // --- MPRIS media player ---
-    property MprisPlayer lastActivePlayer: null
+    // --- Media player (playerctl) ---
+    property QtObject activePlayer: playerctlData
 
-    readonly property MprisPlayer activePlayer: {
-        const list = Mpris.players.values;
-        if (list.length === 0) return null;
-        for (const p of list) {
-            if (p.playbackState === MprisPlaybackState.Playing) return p;
+    property string playerArt: ""
+
+    property var playerctlData: QtObject {
+        property string identity: "Media Player"
+        property string trackTitle: ""
+        property string trackArtist: ""
+        property string artUrl: ""
+        property bool isPlaying: false
+        property real position: 0
+        property real length: 1
+
+        function previous() {
+            playerctlCmd.command = ["playerctl", "--player=playerctld", "previous"]
+            playerctlCmd.running = true
         }
-        for (const p of list) {
-            if (p.trackTitle) return p;
+        function togglePlaying() {
+            playerctlCmd.command = ["playerctl", "--player=playerctld", "play-pause"]
+            playerctlCmd.running = true
         }
-        return list[0];
+        function next() {
+            playerctlCmd.command = ["playerctl", "--player=playerctld", "next"]
+            playerctlCmd.running = true
+        }
+
+        function fetch() {
+            metaProc.running = false
+            metaProc.command = [
+                "playerctl", "--player=playerctld", "metadata",
+                "--format",
+                "{{title}}|~|{{artist}}|~|{{mpris:artUrl}}|~|{{xesam:url}}|~|{{mpris:length}}|~|{{mpris:position}}"
+            ]
+            metaProc.running = true
+        }
     }
 
-    onActivePlayerChanged: {
-        if (activePlayer) lastActivePlayer = activePlayer;
+    property Process playerctlCmd: Process { command: ["true"]; running: false }
+
+    property Process playerctlStatusProc: Process {
+        command: ["playerctl", "--player=playerctld", "status", "--follow"]
+        running: true
+        stdout: SplitParser {
+            onRead: (data) => {
+                playerctlData.isPlaying = data.trim() === "Playing"
+                playerctlData.fetch()
+            }
+        }
     }
 
-    function artFromUrl(url) {
-        if (!url) return "";
-        var match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-        return match ? "https://img.youtube.com/vi/" + match[1] + "/hqdefault.jpg" : "";
-    }
-
-    readonly property string playerArt: {
-        var p = controlCenter.activePlayer;
-        if (!p) return "";
-        if (p.trackArtUrl) return p.trackArtUrl;
-        var url = p.metadata && p.metadata["xesam:url"] || "";
-        return artFromUrl(url);
+    property Process metaProc: Process {
+        command: ["true"]
+        running: false
+        stdout: SplitParser {
+            onRead: (data) => {
+                var parts = data.trim().split("|~|")
+                if (parts.length < 6) return
+                playerctlData.trackTitle = parts[0] || ""
+                playerctlData.trackArtist = parts[1] || ""
+                var artUrl = parts[2] || ""
+                var pageUrl = parts[3] || ""
+                var len = parseFloat(parts[4]) || 0
+                var pos = parseFloat(parts[5]) || 0
+                playerctlData.length = len > 0 ? len / 1000000 : 1
+                playerctlData.position = pos > 0 ? pos / 1000000 : 0
+                var newArt = ""
+                if (artUrl.startsWith("/"))
+                    newArt = "file://" + artUrl
+                else if (artUrl)
+                    newArt = artUrl
+                else if (pageUrl) {
+                    var m = pageUrl.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/)
+                    if (m) newArt = "https://img.youtube.com/vi/" + m[1] + "/hqdefault.jpg"
+                }
+                playerctlData.artUrl = newArt
+                if (newArt) playerArt = newArt
+            }
+        }
     }
 
     Component.onCompleted: {
         refreshWifi();
         backlightDetectProc.running = true;
         nlStateFile.reload();
+        var t = Qt.createQmlObject('import QtQuick; Timer { interval: 3000; onTriggered: playerctlData.fetch(); running: true; repeat: true }', controlCenter, "pctlMetaTimer")
     }
 
     // ---- Inline components ----

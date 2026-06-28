@@ -124,6 +124,8 @@ ColumnLayout {
       source: playerArt || ""
       fillMode: Image.PreserveAspectCrop
       asynchronous: true
+      sourceSize.width: 960
+      sourceSize.height: 320
       visible: playerArt.length > 0 && status === Image.Ready
       opacity: 0.35
     }
@@ -151,6 +153,8 @@ ColumnLayout {
           source: playerArt || ""
           fillMode: Image.PreserveAspectCrop
           asynchronous: true
+          sourceSize.width: 128
+          sourceSize.height: 128
 
           Rectangle {
             anchors.fill: parent
