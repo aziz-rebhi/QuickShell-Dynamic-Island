@@ -9,6 +9,7 @@ import "../status"
 import "../notifications"
 import "../power"
 import "../wallpaper"
+import "../askpass"
 import "../../core"
 
 Rectangle {
@@ -269,11 +270,15 @@ Rectangle {
   // --- Layout ---
   MediaService { id: media }
 
+  // --- Askpass dialog state ---
+  property var askpassSvc: null
+  property bool showAskpass: askpassSvc && askpassSvc.pendingRequest !== null
+
   // Size changes are the core of the Dynamic Island morph.
-  // Regular expanded = 64×540; notification/power = 130×480; app launcher = 240×480; collapsed = 36×auto.
-  height: showAppLauncher ? 240 : (showWallpaperMenu ? 300 : (latestNotificationData || showPowerMenu ? 130 : (isExpanded ? 64 : 36)))
-  width: showWallpaperMenu ? 640 : (latestNotificationData || showPowerMenu || showAppLauncher ? 480 : (isExpanded ? 540 : (mode !== "default" ? indicatorRow.implicitWidth + 86 : collapsedRow.implicitWidth + 86)))
-  radius: showWallpaperMenu ? 28 : (latestNotificationData || showPowerMenu || showAppLauncher ? 28 : (isExpanded ? 22 : 18))
+  // Regular expanded = 64×540; notification/power = 130×480; app launcher = 240×480; askpass = 200×480; collapsed = 36×auto.
+  height: showAppLauncher ? 240 : (showWallpaperMenu ? 300 : (showAskpass ? 200 : (latestNotificationData || showPowerMenu ? 130 : (isExpanded ? 64 : 36))))
+  width: showWallpaperMenu ? 640 : (showAskpass || latestNotificationData || showPowerMenu || showAppLauncher ? 480 : (isExpanded ? 540 : (mode !== "default" ? indicatorRow.implicitWidth + 86 : collapsedRow.implicitWidth + 86)))
+  radius: showWallpaperMenu ? 28 : (showAskpass || latestNotificationData || showPowerMenu || showAppLauncher ? 28 : (isExpanded ? 22 : 18))
   color: Theme.background
 
   // Elastic morph animation for regular expand/collapse
@@ -651,6 +656,17 @@ Rectangle {
         clockWidget.notifUnpinTimer.stop();
       clockWidget.notifDismissed(notifRef);
     }
+  }
+
+  PasswordAskpassDialog {
+    id: askpassDialog
+    anchors.centerIn: parent
+
+    promptText: clockWidget.showAskpass && clockWidget.askpassSvc ? clockWidget.askpassSvc.pendingRequest.prompt : ""
+    fifoPath: clockWidget.showAskpass && clockWidget.askpassSvc ? clockWidget.askpassSvc.pendingRequest.fifoPath : ""
+
+    onSubmitted: (password) => { if (clockWidget.askpassSvc) clockWidget.askpassSvc.submit(password); }
+    onCancelled: { if (clockWidget.askpassSvc) clockWidget.askpassSvc.cancel(); }
   }
 
   SystemClock {

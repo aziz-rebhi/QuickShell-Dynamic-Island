@@ -10,6 +10,7 @@ import "./Widgets/launcher"
 import "./Widgets/mode"
 import "./core"
 import "./Widgets/wallpaper"
+import "./Widgets/askpass"
 
 ShellRoot {
   id: root
@@ -28,6 +29,8 @@ ShellRoot {
     // Fixed exclusive zone — notification banner makes the window taller
     // but keeps the clock's reservation so it floats over apps, not pushes them.
     WlrLayershell.exclusiveZone: 56
+    // Grab keyboard focus when the askpass dialog is open so the password field works
+    WlrLayershell.focusable: clockItem.showAskpass
 
     MouseArea {
       anchors.fill: parent
@@ -61,6 +64,7 @@ ShellRoot {
 
       wallpaperSvc: wallpaperSvc
       modeSvc: modeSvc
+      askpassSvc: askpassSvc
     }
   }
 
@@ -165,6 +169,8 @@ ShellRoot {
   AppLauncherService { id: appLauncherSvc }
 
   ModeService { id: modeSvc }
+
+  AskpassService { id: askpassSvc }
 
   Shortcut {
     sequences: ["Alt+F5"]

@@ -12,10 +12,12 @@ Item {
   property var latestNotificationData: null
   property var storedNotifications: []
   property alias showPowerMenu: mainWidget.showPowerMenu
+  property alias showAskpass: mainWidget.showAskpass
   property alias showAppLauncher: mainWidget.showAppLauncher
   property alias showWallpaperMenu: mainWidget.showWallpaperMenu
   property alias wallpaperSvc: mainWidget.wallpaperSvc
   property alias modeSvc: mainWidget.modeSvc
+  property alias askpassSvc: mainWidget.askpassSvc
 
   function showModeIndicator() { mainWidget.showModeIndicator(); }
 
