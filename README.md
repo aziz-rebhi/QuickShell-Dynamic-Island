@@ -2,7 +2,7 @@
 
 A feature-rich desktop shell configuration built with [Quickshell](https://quickshell.outfoxxed.me/), designed for Wayland compositors (Hyprland). Inspired by macOS Dynamic Island.
 
-![screenshot](screenshots/panel.png)
+![screenshot](screenshots/2026-06-30-201045_hyprshot.png)
 
 ## Overview
 
@@ -195,12 +195,91 @@ git clone https://github.com/YOUR_USER/quickshell-config ~/.config/quickshell
 
 ### 3. Install dependencies
 
+<details>
+<summary>Arch Linux</summary>
+
 ```sh
-# Arch Linux (example)
 sudo pacman -S playerctl cava networkmanager brightnessctl gammastep power-profiles-daemon hyprlock glib2 coreutils
-# AUR
-yay -S nbfc supergfxctl matugen awww
+# AUR (replace yay with your AUR helper)
+yay -S nbfc supergfxctl matugen awww quickshell
 ```
+</details>
+
+<details>
+<summary>NixOS</summary>
+
+```nix
+{ pkgs, ... }: {
+  environment.systemPackages = with pkgs; [
+    quickshell playerctl cava networkmanager brightnessctl
+    gammastep power-profiles-daemon hyprlock glib
+    nbfc supergfxctl matugen feh
+    coreutils
+  ];
+}
+```
+Or with `nix-shell`:
+```sh
+nix-shell -p quickshell playerctl cava networkmanager brightnessctl gammastep power-profiles-daemon hyprlock glib nbfc supergfxctl matugen feh coreutils
+```
+</details>
+
+<details>
+<summary>Fedora</summary>
+
+```sh
+sudo dnf install playerctl cava NetworkManager brightnessctl gammastep power-profiles-daemon hyprlock glib2 coreutils
+# COPR or manual build for quickshell, nbfc, supergfxctl, matugen
+```
+</details>
+
+<details>
+<summary>openSUSE</summary>
+
+```sh
+sudo zypper install playerctl cava NetworkManager brightnessctl gammastep power-profiles-daemon hyprlock glib2 coreutils
+# OBS or manual build for quickshell, nbfc, supergfxctl, matugen
+```
+</details>
+
+<details>
+<summary>Void Linux</summary>
+
+```sh
+sudo xbps-install playerctl cava NetworkManager brightnessctl gammastep power-profiles-daemon hyprlock glib coreutils
+# quickshell available in void-packages
+```
+</details>
+
+<details>
+<summary>Alpine Linux</summary>
+
+```sh
+sudo apk add playerctl cava networkmanager brightnessctl gammastep power-profiles-daemon hyprlock glib coreutils
+# quickshell available in community repo
+```
+</details>
+
+<details>
+<summary>Gentoo</summary>
+
+```sh
+sudo emerge --ask media-sound/playerctl media-sound/cava net-misc/networkmanager
+# + brightnessctl, gammastep, power-profiles-daemon, hyprlock, glib
+# quickshell available in GURU overlay
+```
+</details>
+
+<details>
+<summary>Ubuntu / Debian</summary>
+
+Quickshell requires a manual build from source. Dependencies via apt:
+
+```sh
+sudo apt install playerctl cava network-manager brightnessctl gammastep power-profiles-daemon hyprlock libglib2.0-bin coreutils
+# quickshell, nbfc, supergfxctl, matugen — build from source
+```
+</details>
 
 ### 4. Start quickshell
 
@@ -271,11 +350,11 @@ Configure `~/.config/matugen/config.toml` to output to `core/colors.json` for li
 
 | Preview | Description |
 |---|---|
-| ![Collapsed bar](screenshots/collapsed.png) | Collapsed Dynamic Island (default) |
-| ![Expanded bar](screenshots/expanded.png) | Expanded view with media, clock, status |
-| ![Power menu](screenshots/power-menu.png) | Power menu overlay |
-| ![App launcher](screenshots/launcher.png) | App launcher with search |
-| ![Control Center](screenshots/control-center.png) | Control Center main page |
+| ![Collapsed bar](screenshots/2026-06-30-201045_hyprshot.png) | Collapsed Dynamic Island (default) |
+| ![Expanded bar](screenshots/2026-06-30-201124_hyprshot.png) | Expanded view with media, clock, status |
+| ![Power menu](screenshots/2026-06-30-221032_hyprshot.png) | Power menu overlay |
+| ![App launcher](screenshots/2026-07-01-175044_hyprshot.png) | App launcher with search |
+| ![Control Center](screenshots/2026-06-30-201131_hyprshot.png) | Control Center main page |
 | ![WiFi page](screenshots/wifi.png) | WiFi scan and connect |
 | ![Bluetooth](screenshots/bluetooth.png) | Bluetooth device management |
 | ![Notifications](screenshots/notification.png) | Notification banner |
