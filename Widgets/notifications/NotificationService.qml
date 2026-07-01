@@ -12,6 +12,8 @@ Item {
   property var storedNotifications: []
 
   NotificationServer {
+    actionsSupported: true
+
     onNotification: (notification) => {
       var data = {
         appName: notification.appName,
@@ -19,7 +21,11 @@ Item {
         summary: notification.summary,
         body: notification.body,
         urgency: notification.urgency,
-        id: notification.id
+        id: notification.id,
+        actions: notification.actions,
+        hasInlineReply: notification.hasInlineReply,
+        inlineReplyPlaceholder: notification.inlineReplyPlaceholder,
+        timestamp: Date.now()
       };
 
       var lock = null;
