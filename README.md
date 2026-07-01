@@ -2,7 +2,7 @@
 
 A feature-rich desktop shell configuration built with [Quickshell](https://quickshell.outfoxxed.me/), designed for Wayland compositors (Hyprland). Inspired by macOS Dynamic Island.
 
-![screenshot](screenshots/2026-06-30-201045_hyprshot.png)
+![screenshot](screenshots/2026-07-01-175541_hyprshot.png)
 
 ## Overview
 
@@ -350,15 +350,15 @@ Configure `~/.config/matugen/config.toml` to output to `core/colors.json` for li
 
 | Preview | Description |
 |---|---|
-| ![Collapsed bar](screenshots/2026-06-30-201045_hyprshot.png) | Collapsed Dynamic Island (default) |
-| ![Expanded bar](screenshots/2026-06-30-201124_hyprshot.png) | Expanded view with media, clock, status |
-| ![Power menu](screenshots/2026-06-30-221032_hyprshot.png) | Power menu overlay |
-| ![App launcher](screenshots/2026-07-01-175044_hyprshot.png) | App launcher with search |
-| ![Control Center](screenshots/2026-06-30-201131_hyprshot.png) | Control Center main page |
-| ![WiFi page](screenshots/wifi.png) | WiFi scan and connect |
-| ![Bluetooth](screenshots/bluetooth.png) | Bluetooth device management |
-| ![Notifications](screenshots/notification.png) | Notification banner |
-| ![Wallpaper picker](screenshots/wallpaper.png) | Wallpaper selection grid |
+| ![Collapsed bar](screenshots/2026-07-01-175541_hyprshot.png) | Collapsed Dynamic Island (default) |
+| ![Expanded bar](screenshots/2026-07-01-175750_hyprshot.png) | Expanded view with media, clock, status |
+| ![Power menu](screenshots/2026-07-01-175651_hyprshot.png) | Power menu overlay |
+| ![App launcher](screenshots/2026-07-01-175702_hyprshot.png) | App launcher with search |
+| ![Control Center](screenshots/2026-07-01-180226_hyprshot.png) | Control Center main page |
+| ![WiFi page](screenshots/2026-07-01-180235_hyprshot.png) | WiFi scan and connect |
+| ![Bluetooth](screenshots/2026-07-01-180240_hyprshot.png) | Bluetooth device management |
+| ![Notifications](screenshots/2026-07-01-175547_hyprshot.png) | Notification banner |
+| ![Wallpaper picker](screenshots/2026-07-01-175645_hyprshot.png) | Wallpaper selection grid |
 
 ## Styling
 

@@ -624,16 +624,16 @@ PanelWindow {
     Rectangle {
         id: panel
         width: 540
-        height: Math.min(controlCenter.page === "main" ? mainPageHeightHint : 580, parent.height - 20)
+        height: Math.min(controlCenter.page === "main" ? mainPageHeightHint : 560, parent.height - 20)
 
-        property real mainPageHeightHint: 310
+        property real mainPageHeightHint: 290
             + (controlCenter.activePlayer ? 160 : 0)
             + 30
             + 50
             + 30
             + 80
             + 60
-            + ((controlCenter.storedNotifications?.length ?? 0) > 0 ? 200 : 0)
+            + ((controlCenter.storedNotifications?.length ?? 0) > 0 ? 20: 0)
 
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
