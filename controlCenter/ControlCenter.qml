@@ -344,7 +344,10 @@ PanelWindow {
     }
 
     function btDeviceSubtitle(dev) {
-        if (dev.state === BluetoothDeviceState.Connected) return "Connected";
+        if (dev.state === BluetoothDeviceState.Connected) {
+            if (dev.batteryAvailable) return "Connected · " + Math.round(dev.battery * 100) + "%";
+            return "Connected";
+        }
         if (dev.state === BluetoothDeviceState.Connecting) return "Connecting…";
         if (dev.pairing) return "Pairing…";
         if (dev.paired) return "Paired";
