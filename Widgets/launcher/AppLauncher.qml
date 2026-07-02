@@ -164,6 +164,7 @@ Rectangle {
           Item {
             width: 24; height: 24
             Image {
+              id: appIcon
               anchors.fill: parent
               source: {
                 var ic = modelData.icon;
@@ -178,10 +179,7 @@ Rectangle {
               anchors.centerIn: parent
               text: "󰀻"
               color: appList.currentIndex === index ? Theme.primary : Theme.text
-              opacity: {
-                if (modelData.icon && modelData.icon.indexOf("/") !== -1) return 0;
-                return appList.currentIndex === index ? 1 : 0.5;
-              }
+              opacity: appIcon.visible ? 0 : (appList.currentIndex === index ? 1 : 0.5)
               font { family: "JetBrainsMono Nerd Font"; pixelSize: 14 }
             }
           }
